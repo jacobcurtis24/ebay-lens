@@ -31,23 +31,47 @@ Default quota is 5,000 Browse calls/day. A search is 1 call; photos/thumbnails c
 image CDN and are not API calls.
 
 ### 2. Install
+Requires Python 3.10+. Install into a dedicated environment, not a shared or system one: `mcp`
+pulls in a fair number of dependencies.
+
+**Option A: uv**
 ```bash
 cd ebay-lens
-uv sync            # or: python -m venv .venv && .venv/bin/pip install -e .
+uv sync
 ```
+
+**Option B: plain venv + pip** (no uv needed)
+```bash
+cd ebay-lens
+python3 -m venv .venv          # python3 must be 3.10+; check with: python3 --version
+.venv/bin/pip install -e .
+```
+If your default `python3` is older (e.g. an active conda `base` on 3.9), create the venv with a
+newer interpreter's full path instead, e.g. `~/miniconda3/envs/py312/bin/python -m venv .venv`
+or `/usr/bin/python3.10 -m venv .venv`. The venv keeps using that interpreter, so nothing needs
+activating later.
+
+Check the install with `.venv/bin/python tests/test_mocked.py` (no eBay keys needed).
 
 ### 3. Connect
 
 **Claude Code** (available in all projects):
 ```bash
+# Option A (uv)
 claude mcp add ebay-lens -s user \
   -e EBAY_CLIENT_ID=YOUR_APP_ID -e EBAY_CLIENT_SECRET=YOUR_CERT_ID \
   -e EBAY_POSTAL_CODE=06511 \
   -- uv run --directory /absolute/path/to/ebay-lens ebay-lens
+
+# Option B (venv): point straight at the venv's entry point
+claude mcp add ebay-lens -s user \
+  -e EBAY_CLIENT_ID=YOUR_APP_ID -e EBAY_CLIENT_SECRET=YOUR_CERT_ID \
+  -e EBAY_POSTAL_CODE=06511 \
+  -- /absolute/path/to/ebay-lens/.venv/bin/ebay-lens
 ```
 
 **Claude desktop app**: add to `claude_desktop_config.json`
-(macOS: `~/Library/Application Support/Claude/`), then restart the app:
+(macOS: `~/Library/Application Support/Claude/`), then restart the app. With uv:
 ```json
 {
   "mcpServers": {
@@ -63,6 +87,9 @@ claude mcp add ebay-lens -s user \
   }
 }
 ```
+With a venv, use `"command": "/absolute/path/to/ebay-lens/.venv/bin/ebay-lens"` and
+`"args": []` instead; keep the same `env` block.
+
 A local stdio server works in Claude Code and the desktop app, not in claude.ai in a browser or
 on mobile. Those would need it hosted as a remote HTTPS connector.
 
@@ -98,10 +125,11 @@ on mobile. Those would need it hosted as a remote HTTPS connector.
 - Not legal advice. Re-read the API License Agreement if you extend this.
 
 ## Testing
-`python tests/test_mocked.py` drives every tool through a real MCP client session against a
-mocked eBay API: filter construction, auth/token caching, contact sheets, photo paging, zoom,
-image search, variation listings, and an assertion that no non-GET call except token and
-searchByImage is ever made.
+`.venv/bin/python tests/test_mocked.py` (or `uv run python tests/test_mocked.py`) drives every
+tool through a real MCP client session against a mocked eBay API: filter construction,
+auth/token caching, contact sheets, photo paging, zoom, image search, variation listings, and an
+assertion that no non-GET call except token and searchByImage is ever made. It writes sample
+images to `tests/out/` (git-ignored).
 
 ## Known limits
 - `searchByImage` is marked experimental by eBay: quality varies, and adding `category_id` helps a lot.
