@@ -25,3 +25,6 @@ htmlcov/
 .vscode/
 .idea/
 .DS_Store
+
+# Test artifacts (images written by tests/test_mocked.py)
+tests/out/
