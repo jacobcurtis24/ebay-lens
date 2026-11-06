@@ -68,13 +68,13 @@ Check the install with `.venv/bin/python tests/test_mocked.py` (Windows:
 # Option A (uv)
 claude mcp add ebay-lens -s user \
   -e EBAY_CLIENT_ID=YOUR_APP_ID -e EBAY_CLIENT_SECRET=YOUR_CERT_ID \
-  -e EBAY_POSTAL_CODE=06511 \
+  -e EBAY_POSTAL_CODE=YOUR_POSTAL_CODE \
   -- uv run --directory /absolute/path/to/ebay-lens ebay-lens
 
 # Option B (venv): point straight at the venv's entry point
 claude mcp add ebay-lens -s user \
   -e EBAY_CLIENT_ID=YOUR_APP_ID -e EBAY_CLIENT_SECRET=YOUR_CERT_ID \
-  -e EBAY_POSTAL_CODE=06511 \
+  -e EBAY_POSTAL_CODE=YOUR_POSTAL_CODE \
   -- /absolute/path/to/ebay-lens/.venv/bin/ebay-lens
 ```
 
@@ -103,7 +103,7 @@ claude mcp add ebay-lens -s user \
          "env": {
            "EBAY_CLIENT_ID": "YOUR_APP_ID",
            "EBAY_CLIENT_SECRET": "YOUR_CERT_ID",
-           "EBAY_POSTAL_CODE": "06511"
+           "EBAY_POSTAL_CODE": "YOUR_POSTAL_CODE"
          }
        }
      }
@@ -157,13 +157,13 @@ on mobile. Those would need it hosted as a remote HTTPS connector.
 | `EBAY_COUNTRY` | `US` | Country paired with the postal code |
 
 ## Example prompts
-- "Find a used Barbour Bedale in size 40 under $150. Check the contact sheet, then inspect the
-  three best for wax wear, torn linings and broken zips, and zoom on the tags to confirm it's a
-  real Barbour and to date it."
-- "Here's a photo of a jacket I like (`~/Desktop/jacket.jpg`). Find similar ones on eBay in men's
-  size L."
-- "Find a 3-phase 5 HP rotary vane vacuum pump with local pickup within 100 miles. For each,
-  read the nameplate and tell me voltage, phase and model, and flag anything sold 'as-is'."
+- "Find a used waxed cotton jacket in size L under $150. Check the contact sheet, then inspect
+  the best few for wear, torn linings and broken zips, and zoom on the tags to confirm the brand
+  and estimate its age."
+- "Here's a photo of a jacket I like (`photo.jpg`). Find similar ones on eBay in men's size L."
+- "Find a used mechanical keyboard under $80 with free shipping. Check the contact sheet, then
+  look through the photos of the best few for missing keycaps, yellowing or worn legends, and
+  compare them."
 - "Show me listings similar to https://www.ebay.com/itm/123456789012 but cheaper."
 
 ## eBay terms: how this stays compliant
