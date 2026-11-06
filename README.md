@@ -51,7 +51,15 @@ newer interpreter's full path instead, e.g. `~/miniconda3/envs/py312/bin/python 
 or `/usr/bin/python3.10 -m venv .venv`. The venv keeps using that interpreter, so nothing needs
 activating later.
 
-Check the install with `.venv/bin/python tests/test_mocked.py` (no eBay keys needed).
+On Windows (PowerShell), the venv puts executables in `Scripts\` instead of `bin/`:
+```powershell
+cd ebay-lens
+py -3.12 -m venv .venv         # any installed 3.10+ works; list them with: py -0
+.venv\Scripts\pip install -e .
+```
+
+Check the install with `.venv/bin/python tests/test_mocked.py` (Windows:
+`.venv\Scripts\python tests\test_mocked.py`). No eBay keys needed.
 
 ### 3. Connect
 
@@ -70,25 +78,70 @@ claude mcp add ebay-lens -s user \
   -- /absolute/path/to/ebay-lens/.venv/bin/ebay-lens
 ```
 
-**Claude desktop app**: add to `claude_desktop_config.json`
-(macOS: `~/Library/Application Support/Claude/`), then restart the app. With uv:
-```json
-{
-  "mcpServers": {
-    "ebay-lens": {
-      "command": "uv",
-      "args": ["run", "--directory", "/absolute/path/to/ebay-lens", "ebay-lens"],
-      "env": {
-        "EBAY_CLIENT_ID": "YOUR_APP_ID",
-        "EBAY_CLIENT_SECRET": "YOUR_CERT_ID",
-        "EBAY_POSTAL_CODE": "06511"
-      }
-    }
-  }
-}
-```
-With a venv, use `"command": "/absolute/path/to/ebay-lens/.venv/bin/ebay-lens"` and
-`"args": []` instead; keep the same `env` block.
+**Claude desktop app** (macOS, Windows, Linux):
+
+1. **Open the config file.** In the app, go to Settings → Developer → Edit Config. That works on
+   every OS and creates the file if it doesn't exist. Or open it directly:
+
+   | OS | Config file |
+   |---|---|
+   | macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+   | Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+   | Linux | `~/.config/Claude/claude_desktop_config.json` |
+
+2. **Add the server.** Put `ebay-lens` under `"mcpServers"`. If the file already has content
+   (other servers or settings), merge this entry in rather than replacing the file. Use the
+   `command`/`args` that match how you installed:
+
+   **uv** (any OS):
+   ```json
+   {
+     "mcpServers": {
+       "ebay-lens": {
+         "command": "uv",
+         "args": ["run", "--directory", "/absolute/path/to/ebay-lens", "ebay-lens"],
+         "env": {
+           "EBAY_CLIENT_ID": "YOUR_APP_ID",
+           "EBAY_CLIENT_SECRET": "YOUR_CERT_ID",
+           "EBAY_POSTAL_CODE": "06511"
+         }
+       }
+     }
+   }
+   ```
+   The app is launched from your desktop, not a terminal, so it may not see the `PATH` from your
+   shell. If it can't find `uv`, use uv's full path as `command` (find it with `which uv` on
+   macOS/Linux, `where uv` on Windows).
+
+   **venv, macOS/Linux**: replace `command`/`args` with:
+   ```json
+   "command": "/absolute/path/to/ebay-lens/.venv/bin/ebay-lens",
+   "args": []
+   ```
+
+   **venv, Windows**: replace `command`/`args` with (backslashes must be doubled in JSON;
+   forward slashes also work):
+   ```json
+   "command": "C:\\Users\\you\\ebay-lens\\.venv\\Scripts\\ebay-lens.exe",
+   "args": []
+   ```
+
+   Keep the same `env` block in every case.
+
+3. **Restart the app fully.** Closing the window isn't enough: quit with Cmd+Q on macOS, or
+   right-click the tray icon → Quit on Windows/Linux, then reopen it.
+
+4. **Check it connected.** Settings → Developer shows each server's status. If `ebay-lens`
+   failed, look at the `mcp*.log` files:
+
+   | OS | Logs |
+   |---|---|
+   | macOS | `~/Library/Logs/Claude/` |
+   | Windows | `%APPDATA%\Claude\logs\` |
+   | Linux | `~/.config/Claude/logs/` |
+
+   The most common error is `ENOENT`, meaning the `command` path doesn't exist. Check it's a
+   real absolute path, not the `/absolute/path/to/...` placeholder.
 
 A local stdio server works in Claude Code and the desktop app, not in claude.ai in a browser or
 on mobile. Those would need it hosted as a remote HTTPS connector.
