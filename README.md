@@ -140,8 +140,10 @@ claude mcp add ebay-lens -s user \
    | Windows | `%APPDATA%\Claude\logs\` |
    | Linux | `~/.config/Claude/logs/` |
 
-   The most common error is `ENOENT`, meaning the `command` path doesn't exist. Check it's a
-   real absolute path, not the `/absolute/path/to/...` placeholder.
+   The most common error is `ENOENT` (on Linux: `Failed to spawn process: No such file or
+   directory`), meaning the `command` can't be found. Check that it's a real absolute path, not
+   the `/absolute/path/to/...` placeholder, and that the program exists: with `"command": "uv"`
+   this also happens when uv isn't installed at all. In that case use the venv variant above.
 
 A local stdio server works in Claude Code and the desktop app, not in claude.ai in a browser or
 on mobile. Those would need it hosted as a remote HTTPS connector.
