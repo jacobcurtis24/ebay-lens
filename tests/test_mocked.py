@@ -102,7 +102,7 @@ def kinds(res):
 
 
 async def main():
-    server._client = EbayClient("id", "secret", postal_code="06511", transport=httpx.MockTransport(handler))
+    server._client = EbayClient("id", "secret", postal_code="10001", transport=httpx.MockTransport(handler))
     out = Path(__file__).parent / "out"
     out.mkdir(exist_ok=True)
     async with create_connected_server_and_client_session(server.mcp._mcp_server) as s:
@@ -118,7 +118,7 @@ async def main():
         print("filter =", q["filter"], "| aspect_filter =", q["aspect_filter"], "| sort =", q["sort"])
         assert "conditionIds:{3000|4000|5000|6000}" in q["filter"] and "buyingOptions:{FIXED_PRICE|AUCTION}" in q["filter"]
         assert q["aspect_filter"] == "categoryId:57988,Size:{40|42}"
-        assert "zip%3D06511" in [c for c in calls if c.url.path.endswith("/search")][-1].headers["x-ebay-c-enduserctx"]
+        assert "zip%3D10001" in [c for c in calls if c.url.path.endswith("/search")][-1].headers["x-ebay-c-enduserctx"]
         (out / "contact_sheet.jpg").write_bytes(base64.b64decode(r.content[2].data))
         assert any("s-l300" in str(c.url) for c in calls), "thumbnails should be upsized to s-l300"
 
